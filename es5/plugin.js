@@ -14,7 +14,8 @@ var ClickableComponent = _videoJs2['default'].getComponent('ClickableComponent')
 
 // Default options for the plugin.
 var defaults = {
-  text: 'Download'
+  text: 'Download',
+  allDownloads: false
 };
 
 /**
@@ -36,20 +37,48 @@ var onPlayerReady = function onPlayerReady(player, options) {
   player.addClass('vjs-download-button');
 
   if (!player.controlBar.childNameIndex_.hasOwnProperty('DownloadButton')) {
-    var linkProps = {
-      className: buildCSSClass(),
-      href: player.currentSrc(),
-      title: options.text,
-      download: ''
-    };
-    var linkAttrs = {
-      'aria-live': 'polite',
-      'aria-label': options.text
-    };
 
-    player.controlBar.addChild(new ClickableComponent(undefined, {
-      el: ClickableComponent.prototype.createEl('a', linkProps, linkAttrs)
-    }));
+    if (options.allDownloads) {
+      (function () {
+        var sources = player.el_.querySelectorAll('source');
+        var linkProps = function linkProps(src) {
+          return {
+            className: buildCSSClass(),
+            href: src.src,
+            title: options.text + ' (type: ' + src.type + ')',
+            download: ''
+          };
+        };
+
+        var linkAttrs = function linkAttrs(src) {
+          return {
+            'aria-live': 'polite',
+            'aria-label': options.text + ' (type: ' + src.type + ')'
+          };
+        };
+
+        sources.forEach(function (source) {
+          player.controlBar.addChild(new ClickableComponent(undefined, {
+            el: ClickableComponent.prototype.createEl('a', linkProps(source), linkAttrs(source))
+          }));
+        });
+      })();
+    } else {
+      var linkProps = {
+        className: buildCSSClass(),
+        href: player.currentSrc(),
+        title: options.text,
+        download: ''
+      };
+      var linkAttrs = {
+        'aria-live': 'polite',
+        'aria-label': options.text
+      };
+
+      player.controlBar.addChild(new ClickableComponent(undefined, {
+        el: ClickableComponent.prototype.createEl('a', linkProps, linkAttrs)
+      }));
+    }
   }
 };
 
