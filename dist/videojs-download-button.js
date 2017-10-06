@@ -23,7 +23,7 @@ var ClickableComponent = _videoJs2['default'].getComponent('ClickableComponent')
 // Default options for the plugin.
 var defaults = {
   text: 'Download',
-  allDownloads: false
+  allDownloads: true
 };
 
 /**
