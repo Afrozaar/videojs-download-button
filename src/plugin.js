@@ -3,7 +3,8 @@ const ClickableComponent = videojs.getComponent('ClickableComponent');
 
 // Default options for the plugin.
 const defaults = {
-  text: 'Download'
+  text: 'Download',
+  allDownloads: false
 };
 
 /**
@@ -25,20 +26,42 @@ const onPlayerReady = (player, options) => {
   player.addClass('vjs-download-button');
 
   if (!player.controlBar.childNameIndex_.hasOwnProperty('DownloadButton')) {
-    let linkProps = {
-      className: buildCSSClass(),
-      href: player.currentSrc(),
-      title: options.text,
-      download: ''
-    };
-    let linkAttrs = {
-      'aria-live': 'polite',
-      'aria-label': options.text
-    };
 
-    player.controlBar.addChild(new ClickableComponent(this, {
-      el: ClickableComponent.prototype.createEl('a', linkProps, linkAttrs)
-    }));
+    if (options.allDownloads) {
+      let sources = player.el_.querySelectorAll('source');
+      let linkProps = src => ({
+        className: buildCSSClass(),
+        href: src.src,
+        title: `${options.text} (type: ${src.type})`,
+        download: ''
+      });
+
+      let linkAttrs = src => ({
+        'aria-live': 'polite',
+        'aria-label': `${options.text} (type: ${src.type})`
+      });
+
+      sources.forEach(source => {
+        player.controlBar.addChild(new ClickableComponent(this, {
+          el: ClickableComponent.prototype.createEl('a', linkProps(source), linkAttrs(source))
+        }));
+      });
+    } else {
+      let linkProps = {
+        className: buildCSSClass(),
+        href: player.currentSrc(),
+        title: options.text,
+        download: ''
+        };
+      let linkAttrs = {
+        'aria-live': 'polite',
+        'aria-label': options.text
+      };
+
+      player.controlBar.addChild(new ClickableComponent(this, {
+        el: ClickableComponent.prototype.createEl('a', linkProps, linkAttrs)
+      }));
+    }
   }
 };
 
