@@ -4,7 +4,7 @@ const ClickableComponent = videojs.getComponent('ClickableComponent');
 // Default options for the plugin.
 const defaults = {
   text: 'Download',
-  allDownloads: false
+  allDownloads: true
 };
 
 /**
