@@ -60,48 +60,36 @@ var onPlayerReady = function onPlayerReady(player, options) {
   player.addClass('vjs-download-button');
 
   if (!player.controlBar.childNameIndex_.hasOwnProperty('DownloadButton')) {
+    (function () {
 
-    if (options.allDownloads) {
-      (function () {
-        var sources = player.el_.querySelectorAll('source');
-        var linkProps = function linkProps(src) {
-          return {
-            className: buildCSSClass(),
-            href: src.src,
-            title: options.text + ' (type: ' + src.type + ')',
-            download: ''
-          };
-        };
-
-        var linkAttrs = function linkAttrs(src) {
-          return {
-            'aria-live': 'polite',
-            'aria-label': options.text + ' (type: ' + src.type + ')'
-          };
-        };
-
-        sources.forEach(function (source) {
-          player.controlBar.addChild(new ClickableComponent(undefined, {
-            el: ClickableComponent.prototype.createEl('a', linkProps(source), linkAttrs(source))
-          }));
-        });
-      })();
-    } else {
-      var linkProps = {
-        className: buildCSSClass(),
-        href: player.currentSrc(),
-        title: options.text,
-        download: ''
-      };
-      var linkAttrs = {
-        'aria-live': 'polite',
-        'aria-label': options.text
+      var label = function label(src) {
+        return options.allDownloads ? options.text + ' (type: ' + src.type + ')' : options.text;
       };
 
-      player.controlBar.addChild(new ClickableComponent(undefined, {
-        el: ClickableComponent.prototype.createEl('a', linkProps, linkAttrs)
-      }));
-    }
+      var sources = options.allDownloads ? player.currentSources() : [{ src: player.currentSrc(), type: player.currentType() }];
+
+      var linkProps = function linkProps(src) {
+        return {
+          className: buildCSSClass(),
+          href: src.src,
+          title: label(src),
+          download: ''
+        };
+      };
+
+      var linkAttrs = function linkAttrs(src) {
+        return {
+          'aria-live': 'polite',
+          'aria-label': label(src)
+        };
+      };
+
+      sources.forEach(function (source) {
+        player.controlBar.addChild(new ClickableComponent(undefined, {
+          el: ClickableComponent.prototype.createEl('a', linkProps(source), linkAttrs(source))
+        }));
+      });
+    })();
   }
 };
 
