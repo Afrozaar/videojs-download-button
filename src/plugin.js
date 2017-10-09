@@ -27,41 +27,31 @@ const onPlayerReady = (player, options) => {
 
   if (!player.controlBar.childNameIndex_.hasOwnProperty('DownloadButton')) {
 
-    if (options.allDownloads) {
-      let sources = player.el_.querySelectorAll('source');
-      let linkProps = src => ({
-        className: buildCSSClass(),
-        href: src.src,
-        title: `${options.text} (type: ${src.type})`,
-        download: ''
-      });
+    let label = (src) => (options.allDownloads
+                          ? `${options.text} (type: ${src.type})`
+                          : options.text);
 
-      let linkAttrs = src => ({
-        'aria-live': 'polite',
-        'aria-label': `${options.text} (type: ${src.type})`
-      });
+    let sources = options.allDownloads
+        ? player.currentSources()
+        : [{src: player.currentSrc(), type: player.currentType()}];
 
-      sources.forEach(source => {
-        player.controlBar.addChild(new ClickableComponent(this, {
-          el: ClickableComponent.prototype.createEl('a', linkProps(source), linkAttrs(source))
-        }));
-      });
-    } else {
-      let linkProps = {
-        className: buildCSSClass(),
-        href: player.currentSrc(),
-        title: options.text,
-        download: ''
-        };
-      let linkAttrs = {
-        'aria-live': 'polite',
-        'aria-label': options.text
-      };
+    let linkProps = src => ({
+      className: buildCSSClass(),
+      href: src.src,
+      title: label(src),
+      download: ''
+    });
 
+    let linkAttrs = src => ({
+      'aria-live': 'polite',
+      'aria-label': label(src)
+    });
+
+    sources.forEach(source => {
       player.controlBar.addChild(new ClickableComponent(this, {
-        el: ClickableComponent.prototype.createEl('a', linkProps, linkAttrs)
+        el: ClickableComponent.prototype.createEl('a', linkProps(source), linkAttrs(source))
       }));
-    }
+    });
   }
 };
 
